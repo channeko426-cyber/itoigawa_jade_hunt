@@ -15,7 +15,7 @@ if not API_KEY:
     print("エラー: STORMGLASS_API_KEY が設定されていません。")
     exit(1)
 
-# 【ここを修正】データ取得用の正しいAPI窓口URLに変更しました
+# 【これが本物の正しいURL窓口です】
 url = 'https://stormglass.io'
 
 query_params = {
@@ -41,6 +41,7 @@ try:
             json.dump(data, f, ensure_ascii=False, indent=2)
         print(f"成功: 予報データを {output_file} に保存しました。")
     else:
+        # 失敗した時は、Storm Glassが返してきたエラーメッセージをそのまま表示する
         print(f"APIエラー: ステータスコード {response.status_code}")
         print("サーバーからのメッセージ:", response.text)
         
