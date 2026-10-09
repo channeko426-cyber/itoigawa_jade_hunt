@@ -14,12 +14,24 @@ if not API_KEY:
     print("エラー: STORMGLASS_API_KEY が設定されていません。")
     exit(1)
 
-# 正しいURLの形（ここがずれているとエラーになります）
-url = f'https://stormglass.io{LAT}&lng={LNG}&params={PARAMS}'
-headers = {'Authorization': API_KEY}
+# 【対策】URLの中に直接変数を入れず、リクエスト側の設定（params）で送る形に書き換えました。
+# これによりGitHubがURLを誤って破壊するのを防ぎます。
+url = 'https://stormglass.io'
+
+query_params = {
+    'lat': LAT,
+    'lng': LNG,
+    'params': PARAMS
+}
+
+headers = {
+    'Authorization': API_KEY
+}
 
 try:
-    response = requests.get(url, headers=headers)
+    # params=query_params と指定することで、安全にURLが組み立てられます
+    response = requests.get(url, headers=headers, params=query_params)
+    
     if response.status_code == 200:
         data = response.json()
         output_file = 'itoigawa_marine.json'
@@ -31,5 +43,6 @@ try:
     else:
         print(f"APIエラー: ステータスコード {response.status_code}")
         print(response.text)
+        
 except Exception as e:
     print(f"通信エラーが発生しました: {e}")
