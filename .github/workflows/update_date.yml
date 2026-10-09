@@ -1,0 +1,37 @@
+name: Update Itoigawa Marine Data
+
+on:
+  schedule:
+    # 毎日 日本時間の「朝5:31」と「夕方17:31」に自動実行
+    - cron: '31 20 * * *'
+    - cron: '31 8 * * *'
+  workflow_dispatch: # 手動で動かすためのボタンを作る設定
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # GitHubにデータを上書き保存する権限
+    steps:
+    - name: コードをチェックアウト
+      uses: actions/checkout@v4
+
+    - name: Python環境のセットアップ
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: 必要なライブラリのインストール
+      run: pip install requests
+
+    - name: データ取得プログラムの実行
+      env:
+        STORMGLASS_API_KEY: ${{ secrets.STORMGLASS_API_KEY }}
+      run: python fetch_data.py
+
+    - name: 変更されたデータをGitHubに保存
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add itoigawa_marine.json
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Update marine data [skip ci]" && git push)
